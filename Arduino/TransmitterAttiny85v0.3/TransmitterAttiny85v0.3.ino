@@ -141,16 +141,13 @@ void setup()
     EEPROMWriteInt(0, transponder_id);
   }
 
-  // put your setup code here, to run once:
-  pinMode(STATUS_LED_PIN, OUTPUT);
   // initialize the pushbutton pin as an input:
   pinMode(BUTTON_PIN, INPUT_PULLUP);
   PORTB |= (1 << BUTTON_PIN);    // enable pull-up resistor
-
-  flashTransponderId();
-
 #endif
-
+  // put your setup code here, to run once:
+  pinMode(STATUS_LED_PIN, OUTPUT);
+  flashTransponderId();
 
   pinMode(PB1, OUTPUT);
   //DDRB =  0b00000010;    // set PB1 (= OCR1A) to be an output
@@ -265,27 +262,29 @@ unsigned int EEPROMReadInt(int p_address)
 
 void flashTransponderId() {
   int fn = abs(transponder_id); //better way to find first digit of trasnponder_id
-  while (fn >= 10)
-    fn /= 10;
+  if (fn >= 10) {
+    while (fn >= 10)
+      fn /= 10;
 
-  //Display Transponder ID in two sets of LED Flashes
-  for (int i = 0; i < fn; i++) { //Display MSB
+    //Display Transponder ID in two sets of LED Flashes
+    for (int i = 0; i < fn; i++) { //Display MSB
+      digitalWrite(STATUS_LED_PIN, HIGH);
+      delay(300);
+      digitalWrite(STATUS_LED_PIN, LOW);
+      delay(300);
+    }
+    //Display a single LED Flash to seperate the bits (helps distinguish ID 1 and ID 10)
+    delay(300);
     digitalWrite(STATUS_LED_PIN, HIGH);
-    delay(150);
+    delay(100);
     digitalWrite(STATUS_LED_PIN, LOW);
-    delay(150);
+    delay(500);
   }
-  //Display a single LED Flash to seperate the bits (helps distinguish ID 1 and ID 10)
-  delay(150);
-  digitalWrite(STATUS_LED_PIN, HIGH);
-  delay(50);
-  digitalWrite(STATUS_LED_PIN, LOW);
-  delay(250);
 
   for (int i = 0; i < transponder_id % 10; i++) { //Display LSB
     digitalWrite(STATUS_LED_PIN, HIGH);
-    delay(150);
+    delay(300);
     digitalWrite(STATUS_LED_PIN, LOW);
-    delay(150);
+    delay(300);
   }
 }
